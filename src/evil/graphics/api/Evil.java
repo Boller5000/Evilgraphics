@@ -56,6 +56,7 @@ public class Evil {
 	}
 	
 	public int drawMesh(Mesh mesh) {
+		System.out.println();
 		for (int i = 0; i < mesh.getMesh().size(); i++) {
 			Vector3D pt1t;
 			Vector3D pt2t;
