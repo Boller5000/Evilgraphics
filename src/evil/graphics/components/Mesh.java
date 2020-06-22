@@ -6,7 +6,7 @@ import linearAlgebra.Matrix;
 
 public class Mesh {
 
-	private ArrayList<Vector3D> list = new ArrayList<Vector3D>();
+	public ArrayList<Triangle> list = new ArrayList<Triangle>();
 	private Vector3D origin = new Vector3D(0,0,0);
 
 	public Mesh() {
@@ -19,7 +19,8 @@ public class Mesh {
 						{0,0,1,v3d.getZ()},
 						{0,0,0,	1}};
 		Matrix translateMatrix = new Matrix(rdm);
-		for(Vector3D v : list) {
+		for(Triangle t : list) {
+			for(Vector3D v : t.verticies)
 			v.setVector(Matrix.multiplie(translateMatrix,v.getVector()));
 		}
 	}
@@ -29,22 +30,19 @@ public class Mesh {
 						 {0,0,v3d.getZ(),0},
 						 {0,0,0,1}};
 		Matrix scaleMatrix = new Matrix(rdm);
-		for(Vector3D v : list) {
+		for(Triangle t : list) {
+			for(Vector3D v : t.verticies)
 			v.setVector(Matrix.multiplie(scaleMatrix,v.getVector()));
 		}
 	}
+	
 
-	public Mesh(ArrayList<Vector3D> list) {
-		this.list = list;
+
+
+	public void addTriangle(Triangle t) {
+		this.list.add(t);
 	}
 
-	public void addPoint(Vector3D point) {
-		this.list.add(point);
-	}
-
-	public ArrayList<Vector3D> getMesh() {
-		return this.list;
-	}
 
 	public void rotateX(double angle) {
 		double theta = Math.toRadians(angle);
@@ -77,9 +75,9 @@ public class Mesh {
 		this.rotate(rotationMatrix);
 	}
 	private void rotate(Matrix rm) {
-		for(Vector3D v3d : this.list) {
-			v3d.setVector(Matrix.transposeMatrix(Matrix.multiplie(Matrix.transposeMatrix(v3d.getVector()),rm)));
-			//System.out.println(v3d.getVector().getformatetMatrix());
+		for(Triangle t : list) {
+			for(Vector3D v : t.verticies)
+				v.setVector(Matrix.transposeMatrix(Matrix.multiplie(Matrix.transposeMatrix(v.getVector()),rm)));
 		}
 	}
 
