@@ -86,17 +86,24 @@ public class Main{
 		m.addTriangle(tg11);
 		m.addTriangle(tg12);
 		
+		m.moveMesh(new Vector3D(-0.5,-0.5,0));
+		evil.start();
+		evil.drawMesh(m);
+		evil.drawCall();
+		evil.end();
+		
+		
 		while (true) {
 			try {
 				evil.start();
-//				m.rotateX(0.5);
-//				m.rotateX(1);
-//				m.rotateZ(2);
+				for(int i = 0;i<360;i++) {
+				m.setRotation(new Vector3D(i,i,i));
 					
 					evil.drawMesh(m);
 					evil.drawCall();
 					
 					Thread.sleep(20);
+				}
 					evil.end();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block

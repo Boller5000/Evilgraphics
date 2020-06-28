@@ -7,11 +7,18 @@ import evil.math.algebra.Matrix;
 public class Mesh {
 
 	public ArrayList<Triangle> list = new ArrayList<Triangle>();
+	private Vector3D rotation;
+	
 
 	public Mesh() {
-
+		this.rotation = new Vector3D(0,0,0);
 	}
-	
+	public void moveMesh(Vector3D vertex) {
+		for(Triangle t : list) {
+			for(Vector3D v : t.verticies)
+			v.setVector(Matrix.add(v.getVector(), vertex.getVector()));
+		}
+	}
 	public void translateMesh(Vector3D v3d) {
 		double[][] rdm= {{1,0,0,v3d.getX()},
 						{0,1,0,v3d.getY()},
@@ -36,45 +43,17 @@ public class Mesh {
 	}
 	
 
-
-	public void rotateX(double angle) {
-		double theta = Math.toRadians(angle);
-		double[][] rdm= {{1,	0,				0,				0},
-					  	{0,	Math.cos(theta),-Math.sin(theta),	0},
-					  	{0,	Math.sin(theta),Math.cos(theta),	0},
-					  	{0,		0,				0,				0}};	
-		Matrix rotationMatrix = new Matrix(rdm);
-		this.rotate(rotationMatrix);
-		
-	}
-
-	public void rotateY(double angle) {
-		double theta = Math.toRadians(angle);
-		double[][] rdm= {{Math.cos(theta),	0,Math.sin(theta),	0},
-						{0,					1,			0,		0},
-						{-Math.sin(theta),	0,Math.cos(theta),	0},
-						{0,					0,			0,		1}};
-		Matrix rotationMatrix = new Matrix(rdm);
-		this.rotate(rotationMatrix);
-	}
-
-	public void rotateZ(double angle) {
-		double theta = Math.toRadians(angle);
-		double[][] rdm= {{Math.cos(theta),	-Math.sin(theta),0,	0},
-					  	{Math.sin(theta),	Math.cos(theta), 0,	0},
-					  	{0,					0,				 1,	0},
-					  	{0,					0,				 0,	1}};	
-		Matrix rotationMatrix = new Matrix(rdm);
-		this.rotate(rotationMatrix);
-	}
-	private void rotate(Matrix rm) {
-		for(Triangle t : list) {
-			for(Vector3D v : t.verticies)
-				v.setVector(Matrix.transposeMatrix(Matrix.multiplie(Matrix.transposeMatrix(v.getVector()),rm)));
-		}
-	}
 	public void addTriangle(Triangle t) {
 		this.list.add(t);
 	}
+
+	public Vector3D getRotation() {
+		return rotation;
+	}
+
+	public void setRotation(Vector3D rotation) {
+		this.rotation = rotation;
+	}
+	
 
 }

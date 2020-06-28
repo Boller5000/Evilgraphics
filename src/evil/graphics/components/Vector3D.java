@@ -14,7 +14,7 @@ public class Vector3D {
 	
 	public Vector3D(Matrix m) {
 		double[][] tempMatrix = m.getMatrix();
-		double[][] matrix = {{tempMatrix[0][0]},{tempMatrix[1][0]},{tempMatrix[2][0]},{1}};
+		double[][] matrix = {{tempMatrix[0][0]},{tempMatrix[1][0]},{tempMatrix[2][0]},{tempMatrix[3][0]}};
 		vector = new Matrix(matrix);
 	}
 
@@ -64,7 +64,7 @@ public class Vector3D {
 	 */
 	public static Vector3D normale(Vector3D v3d) {
 		Vector3D normale = new Vector3D(0,0,0);
-		float normalizer = (float) Math.sqrt(v3d.getX() * v3d.getX() + v3d.getY() * v3d.getY() + v3d.getZ() * v3d.getZ());
+		double normalizer = Math.sqrt(v3d.getX() * v3d.getX() + v3d.getY() * v3d.getY() + v3d.getZ() * v3d.getZ());
 		normale.setX(v3d.getX() / normalizer);
 		normale.setY(v3d.getY() / normalizer);
 		normale.setZ(v3d.getZ() / normalizer);
@@ -91,12 +91,13 @@ public class Vector3D {
 	public static double dotProduct(Vector3D v3d1,Vector3D v3d2,Vector3D offset) {
 		
 		double dotProduct = (v3d1.getX() * (v3d2.getX() - offset.getX())
-				+ v3d1.getY() * (v3d2.getY() - offset.getY())
-				+ v3d1.getZ() * (v3d2.getZ() + 5 - offset.getZ()));
+							+ v3d1.getY() * (v3d2.getY() - offset.getY())
+							+ v3d1.getZ() * (v3d2.getZ()  - offset.getZ()));
 		
 		
 		return dotProduct;
 	}
+	
 	
 
 	

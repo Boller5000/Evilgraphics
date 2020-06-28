@@ -17,24 +17,23 @@ public class Evil {
 
 	private double timeStamp = 0;
 	private double fps = 0;
-	
+	private boolean localTime = true;
+
 	private Window w;
 	private ContentPanel cp;
 	private BufferedImage contentBuffer;
 	private Graphics2D g2d;
-	private final Pipe pipe = new Pipe();
 	private Vector3D cam;
 
 	// Projection variables
-	private double zScreen = 1.0;
+	private double zScreen = 1;
 	private double zFar = 1000.0;
-	private float fov = 40f;
-	private double aspectRation;
+	private float fov = 90f;
+	private double aspectRatio;
 	private double fovRad = 1.0 / Math.tan(Math.toRadians(fov) / 2);
-	
-	public Vector3D vCamera = new Vector3D(0,0,1);
-	private Vector3D vLookDir = new Vector3D(0,0,2);
-	
+
+	public Vector3D vCamera = new Vector3D(0, 0, 1);
+	private Vector3D vLookDir = new Vector3D(0, 0, 2);
 
 	public Evil(Window w) {
 		contentBuffer = new BufferedImage(w.getContentPanel().getWidth(), w.getContentPanel().getHeight(),
@@ -43,8 +42,8 @@ public class Evil {
 		g2d.setBackground(Color.BLACK);
 		cp = w.getContentPanel();
 		this.w = w;
-		this.cam = new Vector3D(0,0,0);
-		this.aspectRation = this.contentBuffer.getWidth() / this.contentBuffer.getHeight();
+		this.cam = new Vector3D(0, 0, 0);
+		this.aspectRatio = this.contentBuffer.getWidth() / this.contentBuffer.getHeight();
 
 	}
 
@@ -55,154 +54,205 @@ public class Evil {
 		return 0;
 	}
 
+	public void drawMeshes(ArrayList<Mesh> meshes) {
+		g2d.clearRect(0, 0, 800, 800);
+		for (Mesh m : meshes) {
+			for (Triangle t : m.list) {
+				this.drawTriangle(t);
+			}
+		}
+	}
+
 	public int drawMesh(Mesh mesh) {
 		g2d.clearRect(0, 0, 800, 800);
-		for (Triangle t : mesh.list) {
-			this.drawTriangle(t);
+		Mesh result = new Pipe(mesh,mesh.getRotation()).process();
+		for (Triangle t : result.list) {
+			this.fillTriangle(t);
 		}
 		return 0;
 	}
 
-	public int drawTriangle(Triangle tg) {
-		// foor loop lohnt sich nicht
-		
-		//System.out.println(tg.calculateIfcn(cam));
+	public void drawTriangle(Triangle tg) {
 
-		if ( tg.calculateIfcn(cam) < 0.0f) {
-			int color = tg.getLighting();
-			g2d.setColor(new Color(color,color,color));
-			
-
-			
-			
-			
-			
-			
-			Vector3D pt1 = this.alignVector(this.combineCam(this.transformeVector(tg.verticies[0])));
-			Vector3D pt2 = this.alignVector(this.combineCam(this.transformeVector(tg.verticies[1])));
-			Vector3D pt3 = this.alignVector(this.combineCam(this.transformeVector(tg.verticies[2])));
-
-			//die g2d polygon methode eignet sich nur zum fill da bei normalem "draw " call linien ausgelassen werden
-			g2d.fillPolygon(new int[] {(int) pt1.getX(), (int) pt2.getX(), (int) pt3.getX()},
-							 new int[] {(int) pt1.getY(), (int) pt2.getY(), (int) pt3.getY()},3);
-			
-			g2d.setColor(Color.BLACK);
-			
-			g2d.drawLine((int) pt1.getX(), (int) pt1.getY(), (int) pt2.getX(), (int) pt2.getY());
-			g2d.drawLine((int) pt2.getX(), (int) pt2.getY(), (int) pt3.getX(), (int) pt3.getY());
-			g2d.drawLine((int) pt3.getX(), (int) pt3.getY(), (int) pt1.getX(), (int) pt1.getY());
-			
-			
-
-		}
-		return 0;
+		g2d.drawLine((int) tg.verticies[0].getX(), (int) tg.verticies[0].getY(), (int) tg.verticies[1].getX(),
+				(int) tg.verticies[1].getY());
+		g2d.drawLine((int) tg.verticies[1].getX(), (int) tg.verticies[1].getY(), (int) tg.verticies[2].getX(),
+				(int) tg.verticies[2].getY());
+		g2d.drawLine((int) tg.verticies[2].getX(), (int) tg.verticies[2].getY(), (int) tg.verticies[0].getX(),
+				(int) tg.verticies[0].getY());
 	}
-	
+
 	public void fillTriangle(Triangle tg) {
-		
-		g2d.fillPolygon(new int[] {(int) tg.verticies[0].getX(), (int) tg.verticies[1].getX(), (int) tg.verticies[2].getX()},
-				 new int[] {(int) tg.verticies[0].getY(), (int) tg.verticies[1].getY(), (int) tg.verticies[2].getY()},3);
+		int color = tg.getLighting();
+		g2d.setColor(new Color(color,color,color));
+		g2d.fillPolygon(
+				new int[] { (int) tg.verticies[0].getX(), (int) tg.verticies[1].getX(), (int) tg.verticies[2].getX() },
+				new int[] { (int) tg.verticies[0].getY(), (int) tg.verticies[1].getY(), (int) tg.verticies[2].getY() },
+				3);
 	}
 
-	private Vector3D transformeVector(Vector3D v3d) {
-		v3d.setZ(v3d.getZ() + 5.0f);
-		double[][] rdm = { { this.aspectRation * this.fovRad, 0, 0, 0 }, 
-				{ 0, this.fovRad, 0, 0 },
-				{ 0, 0, this.zFar / (this.zFar - this.zScreen), 1 },
-				{ 0, 0, (-this.zFar * this.zScreen) / (this.zFar - this.zScreen), 0 } };
 
-		Matrix m = (Matrix.multiplie(new Matrix(rdm),v3d.getVector()));
-		v3d.setZ(v3d.getZ() - 5.0f);
-		Vector3D nv3d = new Vector3D(0, 0, 0);
-		nv3d.setVector(m);
+	/**
+	 * defines the pipeline a triangle has to go through
+	 * 
+	 * Rotation->Offset->3Dprojection
+	 * 
+	 * @author tromp
+	 *
+	 */
+	public class Pipe {
+		private Mesh mesh;
+		private Vector3D rotation;
 
-		if (nv3d.getW() != 0.0f) {
-			nv3d.setX(nv3d.getX() / nv3d.getW());
-			nv3d.setY(-nv3d.getY() / nv3d.getW());
-			nv3d.setZ(nv3d.getZ() / nv3d.getW());
+		public Pipe(Mesh mesh) {
+			this.mesh = mesh;
 		}
 
-		return nv3d;
-	}
+		public Pipe(Mesh mesh, Vector3D rotation) {
+			this.mesh = mesh;
+			this.rotation = rotation;
+		}
+
+		public Mesh process() {
+			Mesh calculatedMesh = new Mesh();
+			for (Triangle tg : this.mesh.list) {
+				//Pipeline Objects
+				Triangle triFinal,triTranslated,triProjected,triOffset, triRotated;
+				int lighting = 0;
+				
+				triRotated = new Triangle();
+				triOffset = new Triangle();
+				triProjected = new Triangle();
+				triTranslated = new Triangle();
+				triFinal = new Triangle();
+
+				/*
+				 * Rotation Part of pipeline
+				 */
+				//for looop for all pipelines objects where translation is applied to all verticies
+				for(int i = 0;i < tg.verticies.length;i++) {
+					if (this.rotation != null) {
+							Matrix rotationVector = tg.verticies[i].getVector();
+							rotationVector = Matrix.multiplie(Evil.rotateX(this.rotation.getX()),rotationVector);
+							rotationVector = Matrix.multiplie(Evil.rotateY(this.rotation.getY()),rotationVector);
+							rotationVector = Matrix.multiplie(Evil.rotateZ(this.rotation.getZ()),rotationVector);
+							triRotated.verticies[i].setVector(rotationVector);
+							//System.out.println(triRotated.verticies[i].getVector().getformatetMatrix());
 	
-	private Vector3D alignVector(Vector3D v3d) {
-		Vector3D nv3d = v3d;
-		nv3d.setX(v3d.getX()* (this.contentBuffer.getWidth() / 2) + (this.contentBuffer.getWidth() / 2));
-		nv3d.setY(v3d.getY()* (this.contentBuffer.getHeight() / 2) + (this.contentBuffer.getHeight() / 2));
-		
-		return nv3d;
-	}
-	
-	private Vector3D combineCam(Vector3D v3d) {
-		Vector3D nv3d;
-		Vector3D vUp = new Vector3D(0,1,0);
-		Vector3D vTarget = new Vector3D(Matrix.add(this.vCamera.getVector(), this.vLookDir.getVector()));
-		
-		Matrix CameraV = this.lookAtMatrix(this.vCamera, vTarget, vUp);
+					} else {
+						triRotated = tg;
+						//System.out.println(triRotated.verticies[i].getVector().getformatetMatrix());
+					}
+				}
+					/*
+					 * Offset into screen space
+					 */
+				for(int i = 0;i < tg.verticies.length;i++) {
+					triOffset = triRotated;
+					triOffset.verticies[i].setZ(triRotated.verticies[i].getZ()+3.0);
+					//System.out.println(triOffset.verticies[i].getVector().getformatetMatrix());
+				}
+					/*
+					 * Projection to 3D
+					 */
+					//System.out.println(triOffset.calculateIfcn(cam));
+					if(triOffset.calculateIfcn(cam) < 0) {
+						//calculate lighting 
+						lighting = triOffset.calculateLighting();
+						for(int i = 0;i < tg.verticies.length;i++) {
+						triProjected.verticies[i] = new Vector3D((Matrix.multiplie(Evil.transformMatrix(aspectRatio, fovRad, zScreen, zFar), triOffset.verticies[i].getVector())));
+						if (triProjected.verticies[i].getW() != 0.0f) {
+							triProjected.verticies[i].setX(triProjected.verticies[i].getX() / triProjected.verticies[i].getW());
+							triProjected.verticies[i].setY(triProjected.verticies[i].getY() / triProjected.verticies[i].getW());
+							triProjected.verticies[i].setZ(triProjected.verticies[i].getZ() / triProjected.verticies[i].getW());
+						}
+						//System.out.println(triProjected.verticies[i].getVector().getformatetMatrix());
+						/*
+						 * Translation onto screen
+						 * 
+						 */
+						triTranslated = triProjected;
+						triTranslated.verticies[i].setX(triTranslated.verticies[i].getX()+1);
+						triTranslated.verticies[i].setY(triTranslated.verticies[i].getY()+1);
+						
+						triTranslated.verticies[i].setX(triTranslated.verticies[i].getX()*0.5*contentBuffer.getWidth());
+						triTranslated.verticies[i].setY(triTranslated.verticies[i].getY()*0.5*contentBuffer.getHeight());
+						//System.out.println(triTranslated.verticies[i].getVector().getformatetMatrix());
+					}
+				}
+				
+					 triFinal = triTranslated;
+					 triFinal.setLighting(lighting);
+				
+				calculatedMesh.addTriangle(triFinal);
+			}
+			return calculatedMesh;
+
+		}
 		
 
-		
-		nv3d = new Vector3D(Matrix.multiplie(CameraV, v3d.getVector()));
-		
-		
-		return nv3d;
 	}
-	
-	private Matrix lookAtMatrix(Vector3D from,Vector3D to,Vector3D temp) {
-		Vector3D tempForward = new Vector3D(0,0,0);
-		tempForward.setX(to.getX()-from.getX());
-		tempForward.setY(to.getY()-from.getY());
-		tempForward.setZ(to.getZ()-from.getZ());
-		tempForward.setW(to.getW()-from.getW());
 
-		System.out.println(from.getVector().getformatetMatrix());
-		
-		Vector3D forward = Vector3D.normale(tempForward);
-
-		
-		Vector3D a = new Vector3D(Matrix.multiplie(forward.getVector(), new Matrix(new double[][] {{Vector3D.dotProduct(temp, forward, new Vector3D(0,0,5))}})));
-		Vector3D up = new Vector3D(Matrix.subtract(temp.getVector(), a.getVector()));
-		up = Vector3D.normale(up);
-		
-		
-		Vector3D right = Vector3D.crossProductVector(up,forward);
-		
-//		Vector3D right = Vector3D.crossProductVector(Vector3D.normale(temp), forward);
-//		
-//		Vector3D up = Vector3D.crossProductVector(forward, right);
-		
-		double ta = -(Matrix.multiplie(Matrix.transposeMatrix(from.getVector()), right.getVector()).getMatrix()[0][0]);
-		double tb = -(Matrix.multiplie(Matrix.transposeMatrix(from.getVector()), up.getVector()).getMatrix()[0][0]);
-		double tc = -(Matrix.multiplie(Matrix.transposeMatrix(from.getVector()), forward.getVector()).getMatrix()[0][0]);
-		
-		double[][] matrix = {{right.getX(),up.getX(),forward.getX(),0},
-					 		{ right.getY(),up.getY(),forward.getY(),0},
-					 		{ right.getZ(),up.getZ(),forward.getZ(),0},
-					 		{ ta ,		   tb,		 tc,			1}};
-		
-//		double[][] matrix = {{right.getX()	,right.getY(),right.getZ(),0},
-//		 					{ up.getX()		,up.getY()		,up.getZ()	,0},
-//		 					{ forward.getX(),forward.getY(),forward.getZ(),0},
-//		 					{ from.getX() 	,from.getY()	,from.getZ(),1}};
-		
-		return new Matrix(matrix);
-	}
-	
 	public Mesh loadObj() {
 		return null;
 	}
-	
+
 	/**
 	 * starts frame measurment
 	 */
 	public void start() {
 		this.timeStamp = System.currentTimeMillis();
 	}
+
 	/**
 	 * ends frame measurment
 	 */
 	public void end() {
-		this.fps = Math.round(1000/(System.currentTimeMillis()-this.timeStamp));
-		this.w.setTitle(fps+" FPS");
+		this.fps = Math.round(1000 / (System.currentTimeMillis() - this.timeStamp));
+		this.w.setTitle(fps + " FPS");
+	}
+	
+	
+	/*
+	 * Rotation matrizes
+	 */
+	public static Matrix rotateX(double angle) {
+		double theta = Math.toRadians(angle);
+		double[][] rdm= {{1,	0,				0,				0},
+					  	{0,	Math.cos(theta),-Math.sin(theta),	0},
+					  	{0,	Math.sin(theta),Math.cos(theta),	0},
+					  	{0,		0,				0,				0}};	
+		Matrix rotationMatrix = new Matrix(rdm);
+		return rotationMatrix;
+		
+	}
+
+	public static Matrix rotateY(double angle) {
+		double theta = Math.toRadians(angle);
+		double[][] rdm= {{Math.cos(theta),	0,Math.sin(theta),	0},
+						{0,					1,			0,		0},
+						{-Math.sin(theta),	0,Math.cos(theta),	0},
+						{0,					0,			0,		1}};
+		Matrix rotationMatrix = new Matrix(rdm);
+		return rotationMatrix;
+	}
+
+	public static Matrix rotateZ(double angle) {
+		double theta = Math.toRadians(angle);
+		double[][] rdm= {{Math.cos(theta),	-Math.sin(theta),0,	0},
+					  	{Math.sin(theta),	Math.cos(theta), 0,	0},
+					  	{0,					0,				 1,	0},
+					  	{0,					0,				 0,	1}};	
+		Matrix rotationMatrix = new Matrix(rdm);
+		return rotationMatrix;
+	}
+	public static Matrix transformMatrix(double aspectRatio,double fovRad,double zScreen,double zFar) {
+		double[][] tmm = {{aspectRatio * fovRad, 			0, 			0, 														  0 },
+						 { 0, 								fovRad,		0, 													   	  0 },
+						 { 0, 								0, 			zFar / (zFar - zScreen),								  1 },
+						 { 0,								0, 			(-zFar * zScreen) / (zFar - zScreen),				  	  0 }};
+		Matrix transformationMatrix = new Matrix(tmm);
+		return transformationMatrix;
+		
 	}
 }
