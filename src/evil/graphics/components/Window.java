@@ -1,6 +1,7 @@
 package evil.graphics.components;
 
 import java.awt.Dimension;
+import java.awt.event.KeyListener;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
@@ -8,10 +9,11 @@ import javax.swing.SwingUtilities;
 public class Window {
 	
 	private JFrame frame;
+	private KeyListener listener;
 	
 	private ContentPanel contentPanel;
-	public Window() {
-		
+	public Window(KeyListener k) {
+		this.listener = k;
 	}
 	
 	/**
@@ -27,6 +29,7 @@ public class Window {
 				frame.setContentPane(contentPanel);
 				frame.pack();
 				frame.setLocationRelativeTo(null);
+				frame.addKeyListener(this.listener);
 				frame.requestFocus();
 				frame.setVisible(true);
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -45,5 +48,8 @@ public class Window {
 		this.contentPanel = contentPanel;
 	}
 	
+	public void setTitle(String title) {
+		this.frame.setTitle(title);
+	}
 	
 }

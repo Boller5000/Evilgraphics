@@ -1,5 +1,7 @@
 package evil.test.main;
 
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -9,13 +11,46 @@ import evil.graphics.components.Triangle;
 import evil.graphics.components.Vector3D;
 import evil.graphics.components.Window;
 
-public class Main {
+public class Main{
+	
+	public static Evil evil;
 
 	public static void main(String[] args) {
-		Window w = new Window();
-		w.createWindow(800, 800);
-		Evil evil = new Evil(w);
+		Window w = new Window(new KeyListener() {
 
+			@Override
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyCode()== KeyEvent.VK_LEFT) {
+					evil.vCamera.setX(evil.vCamera.getX()+0.2);
+				}
+				if(e.getKeyCode()== KeyEvent.VK_RIGHT) {
+					evil.vCamera.setX(evil.vCamera.getX()-0.2);
+				}
+				if(e.getKeyCode()== KeyEvent.VK_UP) {
+					evil.vCamera.setY(evil.vCamera.getY()+0.2);
+				}
+				if(e.getKeyCode()== KeyEvent.VK_DOWN) {
+					evil.vCamera.setY(evil.vCamera.getY()-0.2);
+				}
+				
+				
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
+		w.createWindow(800, 800);
+		evil = new Evil(w);
 		Mesh m = new Mesh();
 		
 		Triangle tg1 = new Triangle(new Vector3D(0, 0, 0), new Vector3D(0, 1, 0), new Vector3D(1, 1, 0));
@@ -36,7 +71,8 @@ public class Main {
 		Triangle tg11 = new Triangle(new Vector3D(1, 0, 1), new Vector3D(0, 0, 1), new Vector3D(0, 0, 0));
 		Triangle tg12 = new Triangle(new Vector3D(1, 0, 1), new Vector3D(0, 0, 0), new Vector3D(1, 0, 0));
 		
-
+		
+		
 		m.addTriangle(tg1);
 		m.addTriangle(tg2);
 		m.addTriangle(tg3);
@@ -52,16 +88,16 @@ public class Main {
 		
 		while (true) {
 			try {
-				
-				m.rotateX(0.5);
-				m.rotateY(1);
-				m.rotateZ(2);
+				evil.start();
+//				m.rotateX(0.5);
+//				m.rotateX(1);
+//				m.rotateZ(2);
 					
 					evil.drawMesh(m);
 					evil.drawCall();
 					
 					Thread.sleep(20);
-
+					evil.end();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -69,5 +105,6 @@ public class Main {
 		}
 
 	}
+
 
 }

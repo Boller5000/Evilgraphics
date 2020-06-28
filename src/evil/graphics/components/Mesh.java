@@ -2,12 +2,11 @@ package evil.graphics.components;
 
 import java.util.ArrayList;
 
-import linearAlgebra.Matrix;
+import evil.math.algebra.Matrix;
 
 public class Mesh {
 
 	public ArrayList<Triangle> list = new ArrayList<Triangle>();
-	private Vector3D origin = new Vector3D(0,0,0);
 
 	public Mesh() {
 
@@ -36,12 +35,6 @@ public class Mesh {
 		}
 	}
 	
-
-
-
-	public void addTriangle(Triangle t) {
-		this.list.add(t);
-	}
 
 
 	public void rotateX(double angle) {
@@ -79,6 +72,9 @@ public class Mesh {
 			for(Vector3D v : t.verticies)
 				v.setVector(Matrix.transposeMatrix(Matrix.multiplie(Matrix.transposeMatrix(v.getVector()),rm)));
 		}
+	}
+	public void addTriangle(Triangle t) {
+		this.list.add(t);
 	}
 
 }
