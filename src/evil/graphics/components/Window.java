@@ -1,6 +1,9 @@
 package evil.graphics.components;
 
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyListener;
 
 import javax.swing.JFrame;
@@ -25,7 +28,15 @@ public class Window {
 				contentPanel = new ContentPanel();
 				contentPanel.setPreferredSize(new Dimension(width,height));
 				
-				frame = new JFrame();
+				frame = new JFrame() {
+					@Override
+					public void paint(Graphics g) {}
+				}; 
+				frame.addComponentListener(new ComponentAdapter() {
+					public void componentResized(ComponentEvent e) {
+						contentPanel.setPreferredSize(new Dimension(frame.getWidth(),frame.getHeight()));
+					}
+				});
 				frame.setContentPane(contentPanel);
 				frame.pack();
 				frame.setLocationRelativeTo(null);
@@ -50,6 +61,9 @@ public class Window {
 	
 	public void setTitle(String title) {
 		this.frame.setTitle(title);
+	}
+	public  void addComponentListener(ComponentAdapter adapter) {
+		this.frame.addComponentListener(adapter);
 	}
 	
 }

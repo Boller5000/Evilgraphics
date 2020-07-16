@@ -1,5 +1,8 @@
 package evil.graphics.components;
 
-public interface EvilShader {
-	public static final int DEFAULT =  0x00;
+import java.awt.Graphics2D;
+
+public abstract class EvilShader {
+
+	
 }

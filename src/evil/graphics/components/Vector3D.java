@@ -11,8 +11,17 @@ public class Vector3D {
 		double[][] matrix = {{x},{y},{z},{1}};
 		vector = new Matrix(matrix);
 	}
+	public Vector3D(double x,double y,double z,double w) {
+		double[][] matrix = {{x},{y},{z},{w}};
+		vector = new Matrix(matrix);
+	}
 	
 	public Vector3D(Matrix m) {
+		double[][] tempMatrix = m.getMatrix();
+		double[][] matrix = {{tempMatrix[0][0]},{tempMatrix[1][0]},{tempMatrix[2][0]},{tempMatrix[3][0]}};
+		vector = new Matrix(matrix);
+	}
+	public Vector3D(Matrix m,boolean w) {
 		double[][] tempMatrix = m.getMatrix();
 		double[][] matrix = {{tempMatrix[0][0]},{tempMatrix[1][0]},{tempMatrix[2][0]},{tempMatrix[3][0]}};
 		vector = new Matrix(matrix);

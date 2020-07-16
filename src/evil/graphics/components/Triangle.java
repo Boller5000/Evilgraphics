@@ -1,9 +1,11 @@
 package evil.graphics.components;
 
-public class Triangle {
+
+public class Triangle implements Comparable<Triangle>{
 	public Vector3D[] verticies = new Vector3D[3];
 	public Vector3D normale = new Vector3D(0, 0, 0);
-	private int lighting;
+	private int lighting = 255;
+	private double z;
 
 	public Triangle(Vector3D a, Vector3D b, Vector3D c) {
 		verticies[0] = a;
@@ -21,17 +23,20 @@ public class Triangle {
 	 * Calcalutes the birghtness of the Material-> Lighting
 	 * @return
 	 */
-	public int calculateLighting() {
+	public int calculateLighting(Vector3D camPosition) {
 		// lighting
 
-		Vector3D light = new Vector3D(0, 0, -1);
+		Vector3D light = new Vector3D(0, 1, -1);
+		//light = camPosition;
+		//light.setZ(light.getZ()-1);
 		light = Vector3D.normale(light);
 
 		
 		//Note fix offset 
 		double dp = Vector3D.dotProduct(light, this.normale, new Vector3D(0,0,0));
 
-		
+		if(dp < 0)
+			dp = 0;
 		this.lighting = (int) (dp * 255);
 		return this.lighting;
 	}
@@ -47,7 +52,7 @@ public class Triangle {
 		cv1 = new Vector3D(0, 0, 0);
 		cv2 = new Vector3D(0, 0, 0);
 
-		//calculate cv1 and cv2
+		//calculate cv1 and cv2 -> normale of triangle
 		
 		cv1.setX(this.verticies[1].getX() - this.verticies[0].getX());
 		cv1.setY(this.verticies[1].getY() - this.verticies[0].getY());
@@ -67,11 +72,24 @@ public class Triangle {
 
 		return ifcn;
 	}
+	
+	public void calculateZ() {
+		this.z = (this.verticies[0].getZ() + this.verticies[1].getZ() + this.verticies[2].getZ());
+	}
+	
 	public int getLighting() {
 		return lighting;
 	}
 	public void setLighting(int lighting) {
 		this.lighting = lighting;
+	}
+	public double getZ() {
+		return this.z;
+	}
+	@Override
+	public int compareTo(Triangle t) {
+		return Double.compare(this.getZ(), t.getZ());
+		
 	}
 	
 
